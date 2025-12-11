@@ -2,16 +2,14 @@ import os
 import urllib.parse
 from langchain_google_vertexai import VertexAIEmbeddings
 from langchain_postgres import PGVector  
+from langchain_community.utilities import SQLDatabase
 
 # TODO: Remove debug
 from dotenv import load_dotenv
+load_dotenv()
 
 
-
-def get_vector_store():
-    
-    # TODO: Remove debug
-    load_dotenv()
+def get_connection_string():
 
     pg_user = urllib.parse.quote_plus(os.getenv("PG_USERNAME"))
     pg_pass = urllib.parse.quote_plus(os.getenv("PG_PASSWORD"))
@@ -20,12 +18,23 @@ def get_vector_store():
     pg_db   = os.getenv("PG_DATABASE", "langchain")
     connection_string = f"postgresql+psycopg://{pg_user}:{pg_pass}@{pg_host}:{pg_port}/{pg_db}"
 
+    return connection_string
+
+
+def get_vector_store():
 
     vectorstore = PGVector(
         embeddings=VertexAIEmbeddings(model_name="text-embedding-004"), 
         collection_name="expense_tracking",
-        connection=connection_string,
+        connection=get_connection_string(),
         use_jsonb=True                  # Stores metadata as a json column so we can filter
     )
 
     return vectorstore
+
+
+def get_sql_database():
+
+    return SQLDatabase.from_uri(get_connection_string())
+
+    
