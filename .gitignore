@@ -1,0 +1,5 @@
+.env
+generate_data.py
+aws_billing.csv
+gcp_billing.csv
+docker-compose.yaml
